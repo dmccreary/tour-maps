@@ -8,10 +8,10 @@ edit_uri: 'blob/master/docs'
 
 nav:
   - Home: index.md
-  - Checklist: checklist.md
   - MicroSims:
     - Introduction: sims/index.md
     - Tour Map: sims/tour-map/index.md
+    - Template: sims/template/index.md
   - Glossary: glossary.md
   - How We Built This Site: how-we-built-this-site.md
   - References: references.md

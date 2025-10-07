@@ -11,7 +11,7 @@ hide:
 ---
 # Tour Map
 
-<iframe src="./main.html" height="590px" scrolling="no"
+<iframe src="./main.html" height="780px" scrolling="no"
   style="overflow: hidden;"></iframe>
 
 [Run the Tour Map MicroSim](main.html)
