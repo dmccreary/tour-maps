@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waypoint Map Visualizer</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="icon" href="data:,">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            background: linear-gradient(to bottom right, #eff6ff, #eef2ff);
+            min-height: 100vh;
+            padding: 24px;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .title {
+            font-size: 30px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            padding: 16px;
+            border-radius: 8px;
+        }
+        .stat-card.blue { background: #eef2ff; }
+        .stat-card.green { background: #f0fdf4; }
+        .stat-card.purple { background: #faf5ff; }
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .stat-value.blue { color: #4f46e5; }
+        .stat-value.green { color: #16a34a; }
+        .stat-value.purple { color: #9333ea; }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .upload-area:hover {
+            border-color: #6366f1;
+        }
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            overflow: hidden;
+            z-index: 1;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        .legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            background: #f9fafb;
+        }
+        th {
+            text-align: left;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        td {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-top: 1px solid #e5e7eb;
+        }
+        tr:hover {
+            background: #f9fafb;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+                    <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+                </svg>
+                <h1 class="title">Waypoint Map Visualizer</h1>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="stat-label">Total Waypoints</div>
+                    <div class="stat-value blue" id="total-waypoints">0</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">Total Distance</div>
+                    <div class="stat-value green" id="total-distance">0 km</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-label">Segments</div>
+                    <div class="stat-value purple" id="segments">0</div>
+                </div>
+            </div>
+
+            <label class="checkbox-label">
+                <input type="checkbox" id="show-path" checked>
+                <span>Show Path Lines</span>
+            </label>
+            
+            <label class="upload-area" for="file-input">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <div style="font-size: 14px; color: #6b7280; margin-top: 8px;">Upload CSV File</div>
+                <input type="file" id="file-input" accept=".csv">
+            </label>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">Map View</h2>
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #22c55e;"></div>
+                    <span>Start</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #6366f1;"></div>
+                    <span>Waypoint</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: #ef4444;"></div>
+                    <span>End</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="section-title">Waypoint List</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>Distance</th>
+                    </tr>
+                </thead>
+                <tbody id="waypoint-table">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let map = null;
+        let markers = [];
+        let pathLine = null;
+        let waypoints = [];
+
+        const defaultData = `Name,Long,Lat
+Ibis,55.948399,-3.186841
+Norton House Hotel & Spa,55.932422,-3.384189
+Creggans Inn,56.175403,-5.083672
+Clan MacDuff Hotel,56.795479,-5.140878
+Eilean Iarmain Hotel,57.145349,-5.799012
+Eilean Iarmain Hotel,57.145349,-5.799012
+Coul House Hotel,57.571843,-4.572125
+Coul House Hotel,57.571843,-4.572125
+Dunkeld House Hotel,56.564644,-3.610856
+The Waterfront,56.2227,-2.6994
+Woodside Hotel,56.189625,-4.055882
+Ibis,55.948399,-3.186841`;
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function parseCSV(csv) {
+            const lines = csv.trim().split('\n');
+            if (lines.length < 2) return [];
+            
+            const data = [];
+            for (let i = 1; i < lines.length; i++) {
+                const parts = lines[i].split(',');
+                if (parts.length >= 3) {
+                    data.push({
+                        name: parts[0].trim(),
+                        lat: parseFloat(parts[1]),
+                        lon: parseFloat(parts[2])
+                    });
+                }
+            }
+            return data;
+        }
+
+        function updateStats() {
+            document.getElementById('total-waypoints').textContent = waypoints.length;
+            document.getElementById('segments').textContent = Math.max(0, waypoints.length - 1);
+            
+            let total = 0;
+            for (let i = 1; i < waypoints.length; i++) {
+                total += calculateDistance(
+                    waypoints[i-1].lat, waypoints[i-1].lon,
+                    waypoints[i].lat, waypoints[i].lon
+                );
+            }
+            document.getElementById('total-distance').textContent = total.toFixed(1) + ' km';
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('waypoint-table');
+            tbody.innerHTML = '';
+            
+            waypoints.forEach((wp, i) => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = i + 1;
+                const nameCell = row.insertCell(1);
+                nameCell.textContent = wp.name;
+                nameCell.style.fontWeight = '500';
+                row.insertCell(2).textContent = wp.lat.toFixed(6);
+                row.insertCell(3).textContent = wp.lon.toFixed(6);
+                
+                const distCell = row.insertCell(4);
+                if (i > 0) {
+                    const dist = calculateDistance(
+                        waypoints[i-1].lat, waypoints[i-1].lon,
+                        wp.lat, wp.lon
+                    ).toFixed(1);
+                    distCell.textContent = dist + ' km';
+                } else {
+                    distCell.textContent = '-';
+                }
+            });
+        }
+
+        function updateMap() {
+            if (!map || waypoints.length === 0) return;
+            
+            // Clear existing markers and path
+            markers.forEach(marker => map.removeLayer(marker));
+            if (pathLine) map.removeLayer(pathLine);
+            markers = [];
+            
+            const latLngs = [];
+            
+            waypoints.forEach((wp, i) => {
+                const isFirst = i === 0;
+                const isLast = i === waypoints.length - 1;
+                
+                let color = '#6366f1';
+                if (isFirst) color = '#22c55e';
+                if (isLast) color = '#ef4444';
+                
+                const marker = L.circleMarker([wp.lat, wp.lon], {
+                    radius: 8,
+                    fillColor: color,
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 1
+                }).addTo(map);
+                
+                let popupContent = '<strong>' + wp.name + '</strong><br>' + 
+                                  wp.lat.toFixed(4) + ', ' + wp.lon.toFixed(4);
+                if (i > 0) {
+                    const dist = calculateDistance(
+                        waypoints[i-1].lat, waypoints[i-1].lon,
+                        wp.lat, wp.lon
+                    ).toFixed(1);
+                    popupContent += '<br><span style="color: #6366f1">' + dist + ' km from previous</span>';
+                }
+                
+                marker.bindPopup(popupContent);
+                markers.push(marker);
+                latLngs.push([wp.lat, wp.lon]);
+            });
+            
+            // Draw path
+            const showPath = document.getElementById('show-path').checked;
+            if (showPath && latLngs.length > 1) {
+                pathLine = L.polyline(latLngs, {
+                    color: '#4f46e5',
+                    weight: 3,
+                    opacity: 0.6,
+                    dashArray: '10, 10'
+                }).addTo(map);
+            }
+            
+            // Fit bounds
+            if (latLngs.length > 0) {
+                map.fitBounds(latLngs, { padding: [50, 50] });
+            }
+        }
+
+        function loadWaypoints(csv) {
+            waypoints = parseCSV(csv);
+            updateStats();
+            updateTable();
+            updateMap();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            map = L.map('map').setView([56.5, -4.0], 7);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            loadWaypoints(defaultData);
+            
+            document.getElementById('show-path').addEventListener('change', updateMap);
+            
+            document.getElementById('file-input').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        loadWaypoints(event.target.result);
+                    };
+                    reader.readAsText(file);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

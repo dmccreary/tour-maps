@@ -2,42 +2,50 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://dmccreary.github.io/tour-maps/</loc>
-         <lastmod>2025-10-07</lastmod>
+         <lastmod>2025-10-08</lastmod>
     </url>
     <url>
          <loc>https://dmccreary.github.io/tour-maps/contact/</loc>
-         <lastmod>2025-10-07</lastmod>
+         <lastmod>2025-10-08</lastmod>
     </url>
     <url>
          <loc>https://dmccreary.github.io/tour-maps/feedback/</loc>
-         <lastmod>2025-10-07</lastmod>
+         <lastmod>2025-10-08</lastmod>
     </url>
     <url>
          <loc>https://dmccreary.github.io/tour-maps/glossary/</loc>
-         <lastmod>2025-10-07</lastmod>
+         <lastmod>2025-10-08</lastmod>
     </url>
     <url>
          <loc>https://dmccreary.github.io/tour-maps/how-we-built-this-site/</loc>
-         <lastmod>2025-10-07</lastmod>
+         <lastmod>2025-10-08</lastmod>
     </url>
     <url>
          <loc>https://dmccreary.github.io/tour-maps/license/</loc>
-         <lastmod>2025-10-07</lastmod>
+         <lastmod>2025-10-08</lastmod>
     </url>
     <url>
          <loc>https://dmccreary.github.io/tour-maps/references/</loc>
-         <lastmod>2025-10-07</lastmod>
+         <lastmod>2025-10-08</lastmod>
     </url>
     <url>
          <loc>https://dmccreary.github.io/tour-maps/sims/</loc>
-         <lastmod>2025-10-07</lastmod>
+         <lastmod>2025-10-08</lastmod>
+    </url>
+    <url>
+         <loc>https://dmccreary.github.io/tour-maps/sims/tartan-generator/</loc>
+         <lastmod>2025-10-08</lastmod>
     </url>
     <url>
          <loc>https://dmccreary.github.io/tour-maps/sims/template/</loc>
-         <lastmod>2025-10-07</lastmod>
+         <lastmod>2025-10-08</lastmod>
     </url>
     <url>
          <loc>https://dmccreary.github.io/tour-maps/sims/tour-map/</loc>
-         <lastmod>2025-10-07</lastmod>
+         <lastmod>2025-10-08</lastmod>
+    </url>
+    <url>
+         <loc>https://dmccreary.github.io/tour-maps/sims/waypoint-map-visualizer/</loc>
+         <lastmod>2025-10-08</lastmod>
     </url>
 </urlset>

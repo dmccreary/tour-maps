@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waypoint Map Visualizer</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="icon" href="data:,">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                sans-serif;
+            background: linear-gradient(to bottom right, #eff6ff, #eef2ff);
+            min-height: 100vh;
+            padding: 24px;
+        }
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .title {
+            font-size: 30px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            padding: 16px;
+            border-radius: 8px;
+        }
+        .stat-card.blue { background: #eef2ff; }
+        .stat-card.green { background: #f0fdf4; }
+        .stat-card.purple { background: #faf5ff; }
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .stat-value.blue { color: #4f46e5; }
+        .stat-value.green { color: #16a34a; }
+        .stat-value.purple { color: #9333ea; }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .upload-area:hover {
+            border-color: #6366f1;
+        }
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: linear-gradient(to bottom right, #dbeafe, #d1fae5);
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            overflow: hidden;
+        }
+        .marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+        .marker-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .marker-dot.start { background: #22c55e; }
+        .marker-dot.end { background: #ef4444; }
+        .marker-dot.waypoint { background: #6366f1; }
+        .marker-tooltip {
+            position: absolute;
+            left: 24px;
+            top: 0;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            white-space: nowrap;
+            font-size: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+        .marker:hover .marker-tooltip {
+            opacity: 1;
+        }
+        .tooltip-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .tooltip-coords {
+            color: #6b7280;
+        }
+        .tooltip-distance {
+            color: #6366f1;
+        }
+        .legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            background: #f9fafb;
+        }
+        th {
+            text-align: left;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        td {
+            padding: 8px 16px;
+            font-size: 14px;
+            border-top: 1px solid #e5e7eb;
+        }
+        tr:hover {
+            background: #f9fafb;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1f2937;
+        }
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        input[type="file"] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const Navigation = ({ className }) => (
+            <svg className={className} width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2">
+                <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+            </svg>
+        );
+
+        const Upload = ({ className }) => (
+            <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+        );
+
+        function WaypointMapVisualizer() {
+            const [waypoints, setWaypoints] = useState([]);
+            const [showPath, setShowPath] = useState(true);
+
+            const defaultData = `Name,Long,Lat
+Ibis,55.948399,-3.186841
+Norton House Hotel & Spa,55.932422,-3.384189
+Creggans Inn,56.175403,-5.083672
+Clan MacDuff Hotel,56.795479,-5.140878
+Eilean Iarmain Hotel,57.145349,-5.799012
+Eilean Iarmain Hotel,57.145349,-5.799012
+Coul House Hotel,57.571843,-4.572125
+Coul House Hotel,57.571843,-4.572125
+Dunkeld House Hotel,56.564644,-3.610856
+The Waterfront,56.2227,-2.6994
+Woodside Hotel,56.189625,-4.055882
+Ibis,55.948399,-3.186841`;
+
+            useEffect(() => {
+                parseCSV(defaultData);
+            }, []);
+
+            const parseCSV = (csv) => {
+                const lines = csv.trim().split('\n');
+                if (lines.length < 2) return;
+                
+                const data = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const parts = lines[i].split(',');
+                    if (parts.length >= 3) {
+                        data.push({
+                            name: parts[0].trim(),
+                            lat: parseFloat(parts[1]),
+                            lon: parseFloat(parts[2])
+                        });
+                    }
+                }
+                setWaypoints(data);
+            };
+
+            const handleFileUpload = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        parseCSV(event.target.result);
+                    };
+                    reader.readAsText(file);
+                }
+            };
+
+            const latLonToPixel = (lat, lon, bounds) => {
+                const x = ((lon - bounds.minLon) / (bounds.maxLon - bounds.minLon)) * 100;
+                const y = ((bounds.maxLat - lat) / (bounds.maxLat - bounds.minLat)) * 100;
+                return { x, y };
+            };
+
+            const getBounds = () => {
+                if (waypoints.length === 0) return null;
+                
+                const lats = waypoints.map(w => w.lat);
+                const lons = waypoints.map(w => w.lon);
+                
+                const minLat = Math.min(...lats);
+                const maxLat = Math.max(...lats);
+                const minLon = Math.min(...lons);
+                const maxLon = Math.max(...lons);
+                
+                const latPadding = (maxLat - minLat) * 0.1;
+                const lonPadding = (maxLon - minLon) * 0.1;
+                
+                return {
+                    minLat: minLat - latPadding,
+                    maxLat: maxLat + latPadding,
+                    minLon: minLon - lonPadding,
+                    maxLon: maxLon + lonPadding
+                };
+            };
+
+            const calculateDistance = (lat1, lon1, lat2, lon2) => {
+                const R = 6371;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                          Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                return R * c;
+            };
+
+            const getTotalDistance = () => {
+                let total = 0;
+                for (let i = 1; i < waypoints.length; i++) {
+                    total += calculateDistance(
+                        waypoints[i-1].lat, waypoints[i-1].lon,
+                        waypoints[i].lat, waypoints[i].lon
+                    );
+                }
+                return total.toFixed(1);
+            };
+
+            const bounds = getBounds();
+
+            return (
+                <div className="container">
+                    <div className="card">
+                        <div className="header">
+                            <Navigation />
+                            <h1 className="title">Waypoint Map Visualizer</h1>
+                        </div>
+                        
+                        <div className="stats-grid">
+                            <div className="stat-card blue">
+                                <div className="stat-label">Total Waypoints</div>
+                                <div className="stat-value blue">{waypoints.length}</div>
+                            </div>
+                            <div className="stat-card green">
+                                <div className="stat-label">Total Distance</div>
+                                <div className="stat-value green">{getTotalDistance()} km</div>
+                            </div>
+                            <div className="stat-card purple">
+                                <div className="stat-label">Segments</div>
+                                <div className="stat-value purple">{Math.max(0, waypoints.length - 1)}</div>
+                            </div>
+                        </div>
+
+                        <label className="checkbox-label">
+                            <input
+                                type="checkbox"
+                                checked={showPath}
+                                onChange={(e) => setShowPath(e.target.checked)}
+                            />
+                            <span>Show Path Lines</span>
+                        </label>
+                        
+                        <label className="upload-area">
+                            <Upload />
+                            <div style={{fontSize: '14px', color: '#6b7280', marginTop: '8px'}}>Upload CSV File</div>
+                            <input
+                                type="file"
+                                accept=".csv"
+                                onChange={handleFileUpload}
+                            />
+                        </label>
+                    </div>
+
+                    <div className="card">
+                        <h2 className="section-title">Map View</h2>
+                        <div className="map-container">
+                            {bounds && (
+                                <svg style={{position: 'absolute', inset: 0, width: '100%', height: '100%'}}>
+                                    {showPath && waypoints.length > 1 && waypoints.map((wp, i) => {
+                                        if (i === 0) return null;
+                                        const prev = waypoints[i - 1];
+                                        const p1 = latLonToPixel(prev.lat, prev.lon, bounds);
+                                        const p2 = latLonToPixel(wp.lat, wp.lon, bounds);
+                                        return (
+                                            <line
+                                                key={`path-${i}`}
+                                                x1={`${p1.x}%`}
+                                                y1={`${p1.y}%`}
+                                                x2={`${p2.x}%`}
+                                                y2={`${p2.y}%`}
+                                                stroke="#4f46e5"
+                                                strokeWidth="2"
+                                                strokeDasharray="5,5"
+                                                opacity="0.6"
+                                            />
+                                        );
+                                    })}
+                                </svg>
+                            )}
+                            
+                            {bounds && waypoints.map((wp, i) => {
+                                const pos = latLonToPixel(wp.lat, wp.lon, bounds);
+                                const isFirst = i === 0;
+                                const isLast = i === waypoints.length - 1;
+                                const markerClass = isFirst ? 'start' : isLast ? 'end' : 'waypoint';
+                                
+                                return (
+                                    <div
+                                        key={i}
+                                        className="marker"
+                                        style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+                                    >
+                                        <div className={`marker-dot ${markerClass}`} />
+                                        <div className="marker-tooltip">
+                                            <div className="tooltip-name">{wp.name}</div>
+                                            <div className="tooltip-coords">
+                                                {wp.lat.toFixed(4)}, {wp.lon.toFixed(4)}
+                                            </div>
+                                            {i > 0 && (
+                                                <div className="tooltip-distance">
+                                                    {calculateDistance(
+                                                        waypoints[i-1].lat, waypoints[i-1].lon,
+                                                        wp.lat, wp.lon
+                                                    ).toFixed(1)} km from previous
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        
+                        <div className="legend">
+                            <div className="legend-item">
+                                <div className="legend-dot" style={{background: '#22c55e'}}></div>
+                                <span>Start</span>
+                            </div>
+                            <div className="legend-item">
+                                <div className="legend-dot" style={{background: '#6366f1'}}></div>
+                                <span>Waypoint</span>
+                            </div>
+                            <div className="legend-item">
+                                <div className="legend-dot" style={{background: '#ef4444'}}></div>
+                                <span>End</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card">
+                        <h2 className="section-title">Waypoint List</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Latitude</th>
+                                    <th>Longitude</th>
+                                    <th>Distance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {waypoints.map((wp, i) => (
+                                    <tr key={i}>
+                                        <td>{i + 1}</td>
+                                        <td style={{fontWeight: 500}}>{wp.name}</td>
+                                        <td>{wp.lat.toFixed(6)}</td>
+                                        <td>{wp.lon.toFixed(6)}</td>
+                                        <td>
+                                            {i > 0 ? `${calculateDistance(
+                                                waypoints[i-1].lat, waypoints[i-1].lon,
+                                                wp.lat, wp.lon
+                                            ).toFixed(1)} km` : '-'}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<WaypointMapVisualizer />);
+    </script>
+</body>
+</html>
