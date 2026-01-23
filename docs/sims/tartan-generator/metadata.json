@@ -1,0 +1,45 @@
+{
+  "title": "Clan MacQuarie Tartan Generator",
+  "description": "A description under 110 characters.",
+  "subject": "Mathematics",
+  "topic": "Clan MacQuarie Tartan Generator",
+  "gradeLevel": "6-12",
+  "bloomsTaxonomy": [
+    "Understand",
+    "Apply"
+  ],
+  "author": "Dan McCreary",
+  "dateCreated": "2026-01-23",
+  "dateModified": "2026-01-23",
+  "version": "1.0.0",
+  "license": "MIT",
+  "language": "en",
+  "format": "text/html",
+  "type": "Interactive Simulation",
+  "framework": "p5.js",
+  "url": "https://dmccreary.github.io/tour-maps/sims/tartan-generator/",
+  "identifier": "https://dmccreary.github.io/tour-maps/sims/tartan-generator/",
+  "_source": {
+    "repo": "tour-maps",
+    "sim": "tartan-generator",
+    "github_url": "https://github.com/dmccreary/tour-maps/tree/main/docs/sims/tartan-generator",
+    "auto_generated": true,
+    "generation_date": "2026-01-23"
+  },
+  "subjects": [
+    "Mathematics",
+    "Computer Science",
+    "Engineering"
+  ],
+  "visualizationType": [
+    "simulation",
+    "interactive-demo",
+    "map"
+  ],
+  "learningObjectives": [
+    "Understand the mathematical concept of clan macquarie tartan generator",
+    "Apply clan macquarie tartan generator to solve problems",
+    "Visualize and interpret clan macquarie tartan generator relationships",
+    "Experiment with parameters to observe their effects on clan macquarie tartan generator"
+  ]
+}

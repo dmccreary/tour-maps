@@ -1,0 +1,42 @@
+{
+  "title": "Waypoint Visualizer",
+  "description": "[Run the Main](./main.html)",
+  "subject": "Mathematics",
+  "topic": "Waypoint Visualizer",
+  "gradeLevel": "6-12",
+  "bloomsTaxonomy": [
+    "Understand",
+    "Apply"
+  ],
+  "author": "Dan McCreary",
+  "dateCreated": "2026-01-23",
+  "dateModified": "2026-01-23",
+  "version": "1.0.0",
+  "license": "MIT",
+  "language": "en",
+  "format": "text/html",
+  "type": "Interactive Simulation",
+  "framework": "vanilla-js",
+  "url": "https://dmccreary.github.io/tour-maps/sims/waypoint-map-visualizer/",
+  "identifier": "https://dmccreary.github.io/tour-maps/sims/waypoint-map-visualizer/",
+  "_source": {
+    "repo": "tour-maps",
+    "sim": "waypoint-map-visualizer",
+    "github_url": "https://github.com/dmccreary/tour-maps/tree/main/docs/sims/waypoint-map-visualizer",
+    "auto_generated": true,
+    "generation_date": "2026-01-23"
+  },
+  "subjects": [
+    "Mathematics",
+    "Chemistry",
+    "Engineering"
+  ],
+  "visualizationType": [
+    "map"
+  ],
+  "learningObjectives": [
+    "Understand the mathematical concept of waypoint visualizer",
+    "Apply waypoint visualizer to solve problems",
+    "Visualize and interpret waypoint visualizer relationships"
+  ]
+}

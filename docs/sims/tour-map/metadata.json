@@ -1,0 +1,43 @@
+{
+  "title": "A title under 60 characters.",
+  "description": "A description under 110 characters.",
+  "subject": "Mathematics",
+  "topic": "A title under 60 characters.",
+  "gradeLevel": "6-12",
+  "bloomsTaxonomy": [
+    "Understand",
+    "Apply"
+  ],
+  "author": "Dan McCreary",
+  "dateCreated": "2026-01-23",
+  "dateModified": "2026-01-23",
+  "version": "1.0.0",
+  "license": "MIT",
+  "language": "en",
+  "format": "text/html",
+  "type": "Interactive Simulation",
+  "framework": "p5.js",
+  "url": "https://dmccreary.github.io/tour-maps/sims/tour-map/",
+  "identifier": "https://dmccreary.github.io/tour-maps/sims/tour-map/",
+  "_source": {
+    "repo": "tour-maps",
+    "sim": "tour-map",
+    "github_url": "https://github.com/dmccreary/tour-maps/tree/main/docs/sims/tour-map",
+    "auto_generated": true,
+    "generation_date": "2026-01-23"
+  },
+  "subjects": [
+    "Mathematics",
+    "Engineering"
+  ],
+  "visualizationType": [
+    "interactive-demo",
+    "map"
+  ],
+  "learningObjectives": [
+    "Understand the mathematical concept of a title under 60 characters.",
+    "Apply a title under 60 characters. to solve problems",
+    "Visualize and interpret a title under 60 characters. relationships",
+    "Experiment with parameters to observe their effects on a title under 60 characters."
+  ]
+}
