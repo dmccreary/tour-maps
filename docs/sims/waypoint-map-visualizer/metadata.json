@@ -38,5 +38,27 @@
     "Understand the mathematical concept of waypoint visualizer",
     "Apply waypoint visualizer to solve problems",
     "Visualize and interpret waypoint visualizer relationships"
-  ]
+  ],
+  "pedagogical": {
+    "pattern": "demonstration",
+    "bloomAlignment": [
+      "remember",
+      "understand",
+      "apply"
+    ],
+    "bloomVerbs": [
+      "list",
+      "classify",
+      "calculate",
+      "illustrate"
+    ],
+    "pacing": "self-paced",
+    "supportsPrediction": false,
+    "dataVisibility": "medium",
+    "feedbackType": [
+      "corrective",
+      "immediate"
+    ],
+    "interactionStyle": "observe"
+  }
 }
